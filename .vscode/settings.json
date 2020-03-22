@@ -10,6 +10,13 @@
         "iomanip": "cpp",
         "utility": "cpp",
         "tuple": "cpp",
-        "*.txx": "cpp"
+        "*.txx": "cpp",
+        "random": "cpp",
+        "limits": "cpp",
+        "type_traits": "cpp",
+        "optional": "cpp",
+        "new": "cpp",
+        "cmath": "cpp",
+        "complex": "cpp"
     }
 }

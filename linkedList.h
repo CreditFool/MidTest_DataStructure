@@ -345,15 +345,17 @@ class doubleLinkedList {
         }
 
         void clear() {
-            tail->next = NULL;
-            while (head != NULL) {
-                Node *del = head;
-                head->prev = NULL;
-                head = head->next;
-                tail = head;
-                del->next = NULL;
-                
-                delete del;
+            if (head != NULL) {
+                tail->next = NULL;
+                while (head != NULL) {
+                    Node *del = head;
+                    head->prev = NULL;
+                    head = head->next;
+                    tail = head;
+                    del->next = NULL;
+                    
+                    delete del;
+                }
             }
         }
 
