@@ -206,6 +206,21 @@ class singgleLinkedList {
 
             return indexData->value;
         }
+
+        int getIndex(T val) {
+            int index = -1;
+            Node *body = head;
+            for (int i=0; i<size(); i++) {
+                if (body->value == val) {
+                    index = i;
+                    break;
+                }
+                else {
+                    body = body->next;
+                }
+            }
+            return index;
+        }
 };
 
 template<typename T>

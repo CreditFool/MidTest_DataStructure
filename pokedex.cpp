@@ -59,73 +59,89 @@ void writeCSV(std::string filename, vector<std::string> &data, singgleLinkedList
     database.close();
 }
 
-template<class T, typename U>
-void filterProcessing(T &data, std::string operasi, U operan1, U operan2) {
+template<class T, class U>
+void filterProcessing(T &data, U &filteredData, std::string operasi, int operan1, int operan2) {
+    //filteredData.clear();
     vector<std::string> temp;
-    switch (operasi) {
-    case "=":
-        for (int i=0; i<data.size(); i++) {
-            temp = data.getData(i);
-            if (not (temp[operan1] == operan2))
-                data.remove(i);
+    //#define KOLOM ((operan1 == 0 or (operan1 >= 3 and operan1 < 12)) ? std::stoi(temp(operan1)) : temp(operan1))
+    if (operasi == "=") {
+        int i=0;
+        while (i < filteredData.size()) {
+            temp = filteredData.getData(i);
+            if (!(std::stoi(temp[operan1]) == operan2)) {
+                filteredData.remove(filteredData.getIndex(temp));
+            }
+            else i++;
         }
-        break;
-
-    case ">":
-        for (int i=0; i<data.size(); i++) {
-            temp = data.getData(i);
-            if (not (temp[operan1] > operan2))
-                data.remove(i);
+    }
+    else if (operasi == ">") {
+        int i=0;
+        while (i < filteredData.size()) {
+            temp = filteredData.getData(i);
+            if (!(std::stoi(temp[operan1]) > operan2)) {
+                filteredData.remove(filteredData.getIndex(temp));
+            }
+            else i++;
         }
-        break;
-
-    case "<":
-        for (int i=0; i<data.size(); i++) {
-            temp = data.getData(i);
-            if (not (temp[operan1] < operan2))
-                data.remove(i);
+    }
+    else if (operasi == "<") {
+        int i=0;
+        while (i < filteredData.size()) {
+            temp = filteredData.getData(i);
+            if (!(std::stoi(temp[operan1]) < operan2)) {
+                filteredData.remove(filteredData.getIndex(temp));
+            }
+            else i++;
         }
-        break;
-
-    case ">=":
-        for (int i=0; i<data.size(); i++) {
-            temp = data.getData(i);
-            if (not (temp[operan1] >= operan2))
-                data.remove(i);
+    }
+    else if (operasi == ">=") {
+        int i=0;
+        while (i < filteredData.size()) {
+            temp = filteredData.getData(i);
+            if (!(std::stoi(temp[operan1]) >= operan2)) {
+                filteredData.remove(filteredData.getIndex(temp));
+            }
+            else i++;
         }
-        break;
-
-    case "<=":
-        for (int i=0; i<data.size(); i++) {
-            temp = data.getData(i);
-            if (not (temp[operan1] <= operan2))
-                data.remove(i);
+    }
+    else if (operasi == "<=") {
+        int i=0;
+        while (i < filteredData.size()) {
+            temp = filteredData.getData(i);
+            if (!(std::stoi(temp[operan1]) <= operan2)) {
+                filteredData.remove(filteredData.getIndex(temp));
+            }
+            else i++;
         }
-        break;
-    
-    default:
-        break;
     }
 }
 
 template<class T, class U>
 void dataFilter(T &source, U &filteredSource) {
-    filteredSource.clear();
     vector<std::string> temp;
-    temp = source.getData(0);
-    std::cout << temp[0] << std::endl;
-
-    int total = 500;
-    // temp = source.getData(0);
-    // std::cout << temp[4] << std::endl;
-
     for (int i=0; i<source.size(); i++) {
         temp = source.getData(i);
-        //std::cout << std::stoi(temp[4]) << std::endl;
-        if (std::stoi(temp[4]) >= total) {
-            filteredSource.insertTail(temp);
-        }
+        temp.insert(temp.begin(), to_string(i+1));
+        filteredSource.insertTail(temp);
     }
+    filterProcessing(source, filteredSource, "=", 12, 1);
+    
+    // filteredSource.clear();
+    // vector<std::string> temp;
+    // temp = source.getData(0);
+    // std::cout << temp[0] << std::endl;
+
+    // int total = 500;
+    // // temp = source.getData(0);
+    // // std::cout << temp[4] << std::endl;
+
+    // for (int i=0; i<source.size(); i++) {
+    //     temp = source.getData(i);
+    //     //std::cout << std::stoi(temp[4]) << std::endl;
+    //     if (std::stoi(temp[4]) >= total) {
+    //         filteredSource.insertTail(temp);
+    //     }
+    // }
 }
 
 template <class T>
@@ -160,12 +176,12 @@ int main() {
 
     readCSV("Pokemon.csv", col, dataBase);
     writeCSV("dummy.csv", col, dataBase);
-    //filteredData = dataBase;
-
+    
     dataFilter(dataBase, filteredData);
     std::cout << filteredData.size() << std::endl;
+    col.insert(col.begin(), "No");
     filteredData.insertHead(col);
-    //viewTable(filteredData);
+    viewTable(filteredData);
 
     return 0;
 }
