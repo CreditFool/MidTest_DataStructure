@@ -6,6 +6,7 @@
 #include <iomanip>
 #include <typeinfo>
 #include <cstdlib>
+
 #include "linkedList.h"
 
 void clearScreen() {
@@ -14,6 +15,13 @@ void clearScreen() {
     #else
         std::system ("clear");
     #endif
+}
+
+std::string lowercase(std::string word) {
+    for (int i=0; i<word.size(); i++) {
+        word[i] = tolower(word[i]);
+    }
+    return word;
 }
 
 void readCSV(std::string filename, vector<std::string> &data, singgleLinkedList<vector<std::string>> &db) {
@@ -144,7 +152,7 @@ void filterProcessing(T &filteredData, std::string operasi, int operan1, std::st
         int i=0;
         while (i < filteredData.size()) {
             temp = filteredData.getData(i);
-            if (!(temp[operan1] == operan2)) {
+            if (!(lowercase(temp[operan1]) == lowercase(operan2))) {
                 filteredData.remove(filteredData.getIndex(temp));
             }
             else i++;
@@ -152,25 +160,39 @@ void filterProcessing(T &filteredData, std::string operasi, int operan1, std::st
     }
 }
 
-template<class T>
-void dataFiltering(T &filteredSource) {
-    std::string operasi, operan2str;
-    int operan1, operan2int;
+template<class T, class U>
+void dataFiltering(T &filteredSource, U &filterList) {
+    vector<std::string> filter;
+    std::string column[14] = {"no", "id", "name", "type1", "type2", "total", "hp", "attack", 
+                              "defend", "spatt", "spdef", "speed", "generation", "legendary"};
+    std::string operan, operasi, operan2str;
+    int operan1 = -1, operan2int;
 
-    std::cout << ">> ";
-    std::cin >> operan1 >> operasi;
-    if ((operan1 >= 0 and operan1 <= 1) or (operan1 >= 5 and operan1 <= 12)) {
-        std::cin >> operan2int;
-        filterProcessing(filteredSource, operasi, operan1, operan2int);
+    getline(std::cin, operasi);
+    std::stringstream s(operasi);
+    while (getline(s, operan, ' ')){
+        filter.push_back(operan);
     }
-    else if ((operan1 >= 2 and operan1 <= 4) or operan1 == 13) {
-        std::cin >> operan2str;
-        filterProcessing(filteredSource, operasi, operan1, operan2str);
+
+    for (int i=0; i<14; i++) {
+        if (lowercase(filter[0]) == column[i])
+            operan1 = i;
+    }
+
+    if (((operan1 >= 0 and operan1 <= 1) or (operan1 >= 5 and operan1 <= 12)) and 
+        (filter[1] == "=" or filter[1] == "<" or filter[1] == ">" or filter[1] == "<=" or filter[1] == ">=")) {
+        filterList.push_back(operasi);
+        filterProcessing(filteredSource, filter[1], operan1, std::stoi(filter[2]));
+    }
+    else if (((operan1 >= 2 and operan1 <= 4) or operan1 == 13) and filter[1] == "=") {
+        filterList.push_back(operasi);
+        filterProcessing(filteredSource, filter[1], operan1, filter[2]);
     }
 }
 
 template<class T, class U>
 void dataUnfiltering(T &source, U &filteredSource) {
+    filteredSource.clear();
     vector<std::string> temp;
     for (int i=0; i<source.size(); i++) {
         temp = source.getData(i);
@@ -197,14 +219,24 @@ void viewTable(T &view, vector<std::string> column) {
         }
     }
 
+    int panjang = 13;
+    for (int i=0; i<numOfSpace.size(); i++) {
+        panjang += numOfSpace[i];
+    }
+
     vector<std::string> cell;
     for (int i=0; i<view.size(); i++) {
         cell = view.getData(i);
         for (int j=0; j<cell.size(); j++) {
-            std::cout << std::setw(numOfSpace[j]) << cell[j] << "   ";
+            std::cout << std::setw(numOfSpace[j]) << cell[j] << " ";
+        }
+        if (i==0) { 
+            std::cout << std::endl;
+            for (int garis=0; garis<panjang; garis++) std::cout << "-";
         }
         std::cout << std::endl;
     }
+    view.removeHead();
 }
 
 template <class T>
@@ -226,6 +258,7 @@ int main() {
     clearScreen();
     using namespace std;
     vector<std::string> col;
+    vector<std::string> filterList;
     singgleLinkedList<vector<std::string>> dataBase;
     doubleLinkedList<vector<std::string>> filteredData;
     readCSV("Pokemon.csv", col, dataBase);
@@ -234,29 +267,77 @@ int main() {
 
     // writeCSV("dummy.csv", col, dastaBase);
     // dataUnfiltering(dataBase, filteredData);
-    // dataFiltering(filteredData);
-    // viewTable(filteredData, col);
+    // dataFiltering(filteredData, filterList);
+    // std::cout << filteredData.size() << std::endl;
+    //viewTable(filteredData, col);
 
     do {
         std::cout << "Pokémon data management v1.0" << endl;
         std::cout << "\nPokémon in Database: " << dataBase.size() << " Species";
         std::cout << "\nLatest Generation  : Gen " << highestData(dataBase, 11) << "\n";
         std::cout << "\nNavigation Menu:";
-        std::cout << "\n1. Show Database";
-        std::cout << "\n2. Update Database";
-        std::cout << "\n3. Make Team";
-        std::cout << "\n4. Help";
-        std::cout << "\n5. About";
-        std::cout << "\n6. Exit\n";
+        std::cout << "\n[1]Show Database";
+        std::cout << "\n[2]Update Database";
+        std::cout << "\n[3]Make Team";
+        std::cout << "\n[4]Help";
+        std::cout << "\n[5]About";
+        std::cout << "\n[6]Exit\n";
         std::cout << "\n>> ";
 
         input = streamInt(1, 6);
+                clearScreen();
         switch (input) {
         case 1:
-            clearScreen();
             dataUnfiltering(dataBase, filteredData);
-            std::cout << "Filter : None" << endl;
-            std::cout << "Matches: " << filteredData.size() << " result";
+            do {
+                std::cout << "Filter : ";
+                if (filterList.size() == 0) {
+                    std::cout << "None" << endl;
+                }
+                else {
+                    for (int i=0; i<filterList.size()-1; i++) {
+                        std::cout << filterList[i] << ", ";
+                    }
+                    std::cout << filterList[filterList.size()-1] << endl;
+                }
+                std::cout << "Matches: " << filteredData.size() << " result\n";
+                std::cout << "\n[1]Set filter [2]Show result [3]Reset filter [4]Back\n>> ";
+                
+                input = streamInt(1, 4);
+                switch (input) {
+                case 1:
+                    std::cout << "\nAvailable:";
+                    std::cout << "\nno id name type1 type2 total hp attack defend"; 
+                    std::cout << "\nspatt spdef speed generation legendary\n";
+                    std::cout << "\n= > < >= <=\n";
+                    std::cout << "\nExample: name = Pikachu";
+                    std::cout << "\n         attack >= 150\n";
+                    std::cout << "\n>> ";
+                    dataFiltering(filteredData, filterList);
+                    clearScreen();
+                    break;
+                
+                case 2:
+                    clearScreen();
+                    viewTable(filteredData, col);
+                    std::cout << std::endl;
+                    break;
+                
+                case 3:
+                    dataUnfiltering(dataBase, filteredData);
+                    filterList.clear();
+                    clearScreen();
+                    break;
+
+                case 4:
+                    clearScreen();
+                    break;
+                
+                default:
+                    clearScreen();
+                    break;
+                }
+            } while (input != 4);
             break;
 
         case 2:
