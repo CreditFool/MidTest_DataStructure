@@ -221,6 +221,14 @@ class singgleLinkedList {
             }
             return index;
         }
+
+        void change(int index, T val) {
+            Node *body = head;
+            for (int i=0; i<index; i++) {
+                body = body->next;
+            }
+            body->value = val;
+        }
 };
 
 template<typename T>
@@ -472,5 +480,13 @@ class doubleLinkedList {
                 }
             }
             return index;
+        }
+
+        void change(int index, T val) {
+            Node *body = head;
+            for (int i=0; i<index; i++) {
+                body = body->next;
+            }
+            body->value = val;
         }
 };

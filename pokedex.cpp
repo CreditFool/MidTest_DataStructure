@@ -254,6 +254,57 @@ int highestData(T &db, int col) {
     return highest;
 }
 
+template <class T>
+vector<string> searchData(T &source, int column, std::string val) {
+    vector<string> temp;
+    bool is_available = false;
+    for (int i=0; i<source.size(); i++) {
+        temp = source.getData(i);
+        if (temp[column] == val) {
+            is_available = true;
+            return temp;
+            break;
+        }
+    }
+    if (is_available == false) std::cout << "Data tidak ditemukan" << std::endl;
+}
+
+template <class T>
+vector<std::string> createData(T column) {
+    vector<std::string> temp;
+    std::string input;
+    int total=0;
+
+    do {
+        temp.clear();
+        for (int i=0; i<column.size(); i++) {
+            if (i==4) {
+                temp.push_back("0");
+            }
+            else {
+                std::cout << column[i] << ": ";
+                getline(std::cin, input);
+                temp.push_back(input);
+            }
+        }
+        for (int i=5; i<=10; i++) {
+            total += std::stoi(temp[i]);
+        }
+        temp[4] = to_string(total);
+
+        std::cout << "\n[1]For Continue" << std::endl;
+        std::cout << "[Any Key]For Retry" << std::endl;
+        std::cout << ">> " <<;
+        total = streamInt(1, 1);
+    } while (total != 1);
+    
+    return temp;
+}
+
+void removeData() {
+
+}
+
 int main() {
     clearScreen();
     using namespace std;
@@ -265,7 +316,7 @@ int main() {
 
     int input;
 
-    // writeCSV("dummy.csv", col, dastaBase);
+    // writeCSV("dummy.csv", col, dataBase);
     // dataUnfiltering(dataBase, filteredData);
     // dataFiltering(filteredData, filterList);
     // std::cout << filteredData.size() << std::endl;
@@ -315,7 +366,7 @@ int main() {
                     std::cout << "\n>> ";
                     dataFiltering(filteredData, filterList);
                     clearScreen();
-                    break;
+                   break;
                 
                 case 2:
                     clearScreen();
@@ -341,7 +392,127 @@ int main() {
             break;
 
         case 2:
-            std::cout << "update database" << endl;
+            do {
+                clearScreen();
+                std::cout << "[1]Add new data" << endl;
+                std::cout << "[2]Change data" << endl;
+                std::cout << "[3]Remove data" << endl;
+                std::cout << "[4]Back" << endl;
+                std::cout << "\n>> ";
+                input = streamInt(1, 4);
+                
+                switch (input) {
+                case 1:
+                    clearScreen();
+                    dataBase.insertTail(createData(col));
+                    break;
+
+                case 2:
+                    clearScreen();
+                    dataUnfiltering(dataBase, filteredData);
+                    do {
+                        std::cout << "[1]Search by No" << endl;
+                        std::cout << "[2]Search by Name" << endl;
+                        std::cout << "[3]Cancel" << endl;
+                        std::cout << "\n>> ";
+                        input = streamInt(1, 3);
+
+                        switch (input) {
+                        case 1:
+                            {
+                                int no;
+                                do {
+                                    std::cout << "Insert the database number: ";
+                                    no = streamInt(1, dataBase.size());
+                                } while (no == -1);
+                                filterProcessing(filteredData, "=", 0, no);
+                                do {
+                                    clearScreen();
+                                    viewTable(filteredData, col);
+                                    vector<std::string> temp;
+                                    temp = filteredData.getData(0);
+                                    std::cout << "\nAre you sure want to change this data?\n";
+                                    std::cout << "[1]Continue\n";
+                                    std::cout << "[2]Cancel\n";
+                                    std::cout << "\n>> ";
+                                    input = streamInt(1, 2);
+
+                                    switch (input) {
+                                    case 1:
+                                        dataBase.change(dataBase.getIndex(temp), createData(col));
+                                        clearScreen();
+                                        break;
+
+                                    case 2:
+                                        clearScreen();
+                                        break;
+
+                                    default:
+                                        clearScreen();
+                                        break;
+                                    }
+                                } while (input!=1 or input!=2);
+                            }
+                            break;
+
+                        case 2:
+                            {
+                                std::string name;
+                                std::cout << "Insert Pokemon name: ";
+                                getline(std::cin, name);
+                                filterProcessing(filteredData, "=", 2, name);
+                                do {
+                                    clearScreen();
+                                    viewTable(filteredData, col);
+                                    vector<std::string> temp;
+                                    temp = filteredData.getData(0);
+                                    std::cout << "\nAre you sure want to change this data?\n";
+                                    std::cout << "[1]Continue\n";
+                                    std::cout << "[2]Cancel\n";
+                                    std::cout << "\n>> ";
+                                    input = streamInt(1, 2);
+
+                                    switch (input) {
+                                    case 1:
+                                        dataBase.change(dataBase.getIndex(temp), createData(col));
+                                        clearScreen();
+                                        break;
+
+                                    case 2:
+                                        clearScreen();
+                                        break;
+
+                                    default:
+                                        clearScreen();
+                                        break;
+                                    }
+                                } while (input!=1 or input!=2);
+                            }
+                            break;
+
+                        case 3:
+                            break;
+
+                        default:
+                            break;
+                        }
+                    } while (input != 3);
+
+                    break;
+
+                case 3:
+                    break;
+
+                case 4:
+                    clearScreen();
+                    break;
+                
+                default:
+                    clearScreen();
+                    break;
+                }
+
+            } while (input != 4);
             break;
 
         case 3:
@@ -357,6 +528,7 @@ int main() {
             break;
 
         case 6:
+            writeCSV("dummy.csv", col, dataBase);
             break;
 
         default:
