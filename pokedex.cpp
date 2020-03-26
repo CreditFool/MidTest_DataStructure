@@ -638,6 +638,7 @@ int main() {
 
         case 4:
             clearScreen();
+            writeCSV("dummy.csv", col, dataBase);
             break;
         }
     } while (input != 4);
